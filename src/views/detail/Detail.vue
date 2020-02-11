@@ -10,7 +10,7 @@
       <detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
-    <detail-bottom-bar></detail-bottom-bar>
+    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backTop" v-show="isShowBackTop"></back-top>
   </div>
 </template>
@@ -147,7 +147,7 @@ export default {
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
       this.themeTopYs.push(Number.MAX_VALUE)
-      console.log(this.themeTopYs);
+      // console.log(this.themeTopYs);
     }, 200);
   },
   mounted() {},
@@ -183,7 +183,7 @@ export default {
 
         if(this.currentIndex !==i && (positionY >=this.themeTopYs[i] && positionY< this.themeTopYs[i+1])){
           this.currentIndex = i;
-          console.log(this.currentIndex);
+          // console.log(this.currentIndex);
           this.$refs.nav.currentIndex=this.currentIndex
         }
         // if (
@@ -202,7 +202,21 @@ export default {
         this.listenShowBackTop(position)
       }
     },
-    
+    addToCart(){
+      // 1.获取购物车需要展示的信息
+      const product={}
+      product.image=this.topImages[0];
+      product.title=this.goods.title;
+      product.desc=this.goods.desc;
+      product.price=this.goods.realPrice;
+      product.iid=this.iid;
+
+      // 2.将商品添加到购物车
+      // this.$store.commit('addCart',product)
+      this.$store.dispatch('addCart',product).then(res=>{
+        console.log(res)
+      })
+    }
     
   }
 };
