@@ -28,7 +28,6 @@ import DetailBottomBar from "./childComps/DetailBottomBar";
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
 
-
 import {
   getDetail,
   Goods,
@@ -37,8 +36,9 @@ import {
   getRecommend
 } from "network/detail";
 import { debounce } from "common/utils";
-import { itemListenerMixin,backTopMixin } from "common/mixin";
+import { itemListenerMixin, backTopMixin } from "common/mixin";
 
+import { mapActions } from "vuex";
 
 export default {
   name: "Detail",
@@ -52,10 +52,9 @@ export default {
     DetailCommentInfo,
     DetailBottomBar,
     Scroll,
-    GoodsList,
-    
+    GoodsList
   },
-  mixins: [itemListenerMixin,backTopMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       iid: null,
@@ -68,8 +67,7 @@ export default {
       recommends: [],
       themeTopYs: [],
       getThemeTopY: null,
-      currentIndex: 0,
-      
+      currentIndex: 0
     };
   },
   created() {
@@ -146,7 +144,7 @@ export default {
       this.themeTopYs.push(this.$refs.params.$el.offsetTop);
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
-      this.themeTopYs.push(Number.MAX_VALUE)
+      this.themeTopYs.push(Number.MAX_VALUE);
       // console.log(this.themeTopYs);
     }, 200);
   },
@@ -156,6 +154,7 @@ export default {
     this.$bus.$off("itemImgLoad", this.itemImgListener);
   },
   methods: {
+    ...mapActions(["addCart"]),
     detailImageLoad() {
       this.newRefresh();
       // this.$refs.scroll.refresh()
@@ -176,15 +175,18 @@ export default {
       // positionY在 0 和 7938 之间，index=0
       // positionY在 7938 和 9120 之间，index=1
       let length = this.themeTopYs.length;
-      for (let i = 0; i < length-1; i++) {
+      for (let i = 0; i < length - 1; i++) {
         // if(positionY>this.themeTopYs[i] && positionY<this.themeTopYs[i+1]){
         //   console.log(i)
         // }
 
-        if(this.currentIndex !==i && (positionY >=this.themeTopYs[i] && positionY< this.themeTopYs[i+1])){
+        if (
+          this.currentIndex !== i &&
+          positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1]
+        ) {
           this.currentIndex = i;
           // console.log(this.currentIndex);
-          this.$refs.nav.currentIndex=this.currentIndex
+          this.$refs.nav.currentIndex = this.currentIndex;
         }
         // if (
         //   this.currentIndex !== i &&
@@ -199,25 +201,28 @@ export default {
         // }
 
         // 3.是否显示回到顶部
-        this.listenShowBackTop(position)
+        this.listenShowBackTop(position);
       }
     },
-    addToCart(){
+    addToCart() {
       // 1.获取购物车需要展示的信息
-      const product={}
-      product.image=this.topImages[0];
-      product.title=this.goods.title;
-      product.desc=this.goods.desc;
-      product.price=this.goods.realPrice;
-      product.iid=this.iid;
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.realPrice;
+      product.iid = this.iid;
 
-      // 2.将商品添加到购物车
+      // 2.将商品添加到购物车(1.Promise 2.mapActions)
       // this.$store.commit('addCart',product)
-      this.$store.dispatch('addCart',product).then(res=>{
-        console.log(res)
-      })
+      this.addCart(product).then(res => {
+        console.log(res);
+      });
+
+      // this.$store.dispatch('addCart',product).then(res=>{
+      //   console.log(res)
+      // })
     }
-    
   }
 };
 </script>
